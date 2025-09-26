@@ -16,14 +16,15 @@ namespace Asteroida.ViewModels;
 public partial class MainViewModel : ViewModelBase
 {
 
-    public ObservableCollection<tAsteroida> Asteroids { get; } = new();
+    public ObservableCollection<AsteroidaGame.Asteroida> Asteroids { get; } = new();
 
     private Model _model;
     private DispatcherTimer _timer;
     private Random _random = new();
-    private int col = 0; 
+    private int col = 0;
+    private double speed = 1;
 
-    public Player player = new Player();
+    public Asteroida.Avalonia.ViewModels.Player player = new Asteroida.Avalonia.ViewModels.Player();
     public int Col
     {
         get => col;
@@ -37,51 +38,50 @@ public partial class MainViewModel : ViewModelBase
             }
         }
     }
+    public AsteroidaGame.Player Player { get; set; }
 
     public string StatusText => "Num of collision: " + Col;
+
+    public String ElapsedTime
+    {
+        get { return " | " + TimeSpan.FromSeconds(_model.GameTime).ToString("g"); }
+    }
+
     public MainViewModel(Model model)
     {
         _model = model;
-        
-        for (int i = 0; i < _model.Num; i++)
-            Asteroids.Add(new tAsteroida { X = _random.Next(800), Y = _random.Next(600) });
-
-        Asteroids.Add(player);
+        _model.LevelUp += new EventHandler<EventArgs>(LevelUp);
+        _model.GameOver += new EventHandler<EventArgs>(GameOver);
+        Player = model.Player;
+        Asteroids = new ObservableCollection<AsteroidaGame.Asteroida>([.._model.Asteroids, _model.Player]);
         _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
         _timer.Tick += GameLoop;
         _timer.Start();
-
+         
         ExitGameCommand = new RelayCommand(OnExitCommand);
         
     }
 
+    private void LevelUp(object? sender, EventArgs e)
+    {
+        speed = _model.Speed;
+    }
+
+    private void GameOver(object? sender, EventArgs e)
+    {
+        ExitGame?.Invoke(this, EventArgs.Empty);
+    }
+
     private void GameLoop(object? sender, EventArgs e)
     {
-        foreach (var asteroid in Asteroids.Where(x => !(x is Player)))
+        foreach (var asteroid in _model.Asteroids)
         {
-            asteroid.X += 1;
-            asteroid.Y += 1;
-
-            if (asteroid.X > 1100) asteroid.X = 0;
-            if (asteroid.Y > 600) asteroid.Y = 0;
+            asteroid.NewPosition(speed);
         }
-
-
-
-        foreach (var asteroid in Asteroids.Where(x => !(x is Player)))
-        {
-            asteroid.RaisePositionChanged();
-            if (_model.calculateCollison((asteroid.X, asteroid.Y), (player.PlayerPosition.X, player.PlayerPosition.Y)))
-            {
-                asteroid.X = 0;
-                asteroid.Y = 0;
-                Col++;
-            }
-        }
-
-
-
-
+        _model.Player.NewPosition(speed);
+        _model.calculateCollison();
+        Col = _model.Col;
+        OnPropertyChanged(nameof(ElapsedTime));
     }
 
     public RelayCommand ExitGameCommand { get; private set; }

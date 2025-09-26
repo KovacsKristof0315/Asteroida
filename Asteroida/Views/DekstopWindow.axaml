@@ -2,10 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="clr-namespace:Asteroida.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
-             x:Class="Asteroida.Views.MainView"
+              xmlns:vm="clr-namespace:Asteroida.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:local="clr-namespace:Asteroida.Avalonia"
+             x:Class="Asteroida.Avalonia.DekstopWindow"
              x:DataType="vm:MainViewModel">
   
   <Grid>
@@ -17,15 +17,12 @@
     
 
 
-    <local:GameCanvas Grid.Row="1" Items="{Binding Asteroids}"/>
-    <Canvas>
-      <local:JoyStick Width="{Binding JoyStickSize}" Height="{Binding JoyStickSize}"
-                 Opacity="1" Canvas.Top="140" Player="{Binding Player}"/>
-    </Canvas>
-    
-    <Border Grid.Row="2" Background="#FFF" Padding="4">
+    <local:GameCanvas x:Name="GameCanvas" Focusable="True" Grid.Row="1" Items="{Binding Asteroids}"/>
+
+    <Border Grid.Row="2"  Background="#FFF" Padding="4">
       <DockPanel>
         <TextBlock Text="{Binding StatusText}" DockPanel.Dock="Left" Foreground="Black" />
+        <TextBlock Text="{Binding ElapsedTime}" DockPanel.Dock="Left" Foreground="Black" />
       </DockPanel>
     </Border>
   </Grid>

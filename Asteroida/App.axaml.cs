@@ -10,6 +10,7 @@ using Avalonia.Markup.Xaml;
 using System;
 using System.Numerics;
 using AsteroidaGame;
+using Asteroida.Avalonia;
 
 namespace Asteroida;
 
@@ -37,7 +38,7 @@ public partial class App : Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow
+            desktop.MainWindow = new DekstopWindow
             {
                 DataContext = _viewModel
             };
